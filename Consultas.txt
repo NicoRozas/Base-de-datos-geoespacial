@@ -1,0 +1,18 @@
+Queries
+Se crea una variable auxiliar que contiene las dimensiones del polígono con el cual está representado Santiago, para posterior utilizarlos en la consulta. (Ojo con la sintaxis)
+set @santiago = 'polygon((-34.244300 -70.945647, -33.037014 -70.945647, -33.037014 -70.940154, -34.244300 -70.940154, -34.244300 -70.945647))';
+Fotos tomadas en Santiago: Con la siguiente query se obtienen los usuarios que han tomado fotografías en Santiago. 
+SELECT U.nombreUsuario, U.apellidoUsuario, F.nombreFotografia,astext(F.ubicacionFotografia) FROM usuario U , fotografia F WHERE U.idusuario = F.idusuario AND Intersects(F.ubicacionFotografia,GeomFromText(@santiago) );
+Fotografías por usuario: Con la siguiente query se obtienen todos los usuarios con todas las fotografías que han tomado. 
+SELECT U.nombreUsuario, U.apellidoUsuario, F.nombreFotografia,astext(F.ubicacionFotografia) FROM usuario U , fotografia F WHERE U.idusuario = F.idusuario;
+Ubicación fotografías: Con la siguiente query se obtienen todas las coordenadas de las respectivas fotografías. 
+select astext(ubicacionFotografia) from fotografia;
+Se crean dos variables auxiliares con sus respectivas coordenadas, con el objetivo de utilizarlas posteriormente en las consultas. 
+set @santiago = 'point(-33.496249 -70.648598)';
+set @sanAntonio = 'point(-33.587879 -71.555389)';
+Fotografías tanto en San Antonio como Santiago: Con la siguiente query se obtienen todos los usuarios que han subido fotos tanto en Santiago como en san Antonio. 
+select U.nombreusuario, F.nombrefotografia, astext(F.ubicacionfotografia), astext(F1.ubicacionfotografia)  from fotografia F, fotografia F1, usuario U where st_equals(geomfromtext(@santiago),F.ubicacionfotografia) AND st_equals(geomfromtext(@sanAntonio),F1.ubicacionfotografia) AND U.idusuario = F.idusuario AND U.idusuario = F1.idusuario AND F1.idusuario = F.idusuario;
+Fotografías tomadas entre la ruta entre el Monte y Talagante: Con la siguiente query se obtienen todos los usuarios que subido fotografías en la ruta entre el Monte y Talagante. 
+set @ls = ‘linestring(-33.692296 -71.044524, -33.685440 -70.942901)’;
+select U.nombreusuario, F.nombrefotografia, astext(F.ubicacionfotografia) from fotografia F, usuario U where intersects(geomfromtext(@ls),ubicacionfotografia) AND U.idusuario = F.idusuario;
+
